@@ -7,18 +7,18 @@ With Reweave aspects are convention based, any Attribute with a name ending in "
   - OnExecute - is called before the body of the method
     - methodName : string - the name of the method being invoked
     - className : string - the name of the class containing the method
-	- arguments : Dictionary<string, object> - The name and value of each parameter passed to the method
+	- arguments : Dictionary&ltstring, object&gt; - The name and value of each parameter passed to the method
     - return value : object - can optionally return a correlation value to be passed to the other methods of the aspect
   - OnComplete - is called before the method returns but after the body
     - methodName : string - the name of the method being invoked
     - className : string - the name of the class containing the method
-	- arguments : Dictionary<string, object> - The name and value of each parameter passed to the method
+	- arguments : Dictionary&ltstring, object&gt; - The name and value of each parameter passed to the method
 	- returnValue : object - the value that will be returned from the method, null if the method has a void return
     - correlation : object - the value optionally returned from OnExecute
   - OnException - is called whenever an exception would bubble up from the method
     - methodName : string - the name of the method being invoked
     - className : string - the name of the class containing the method
-	- arguments : Dictionary<string, object> - The name and value of each parameter passed to the method
+	- arguments : Dictionary&ltstring, object&gt; - The name and value of each parameter passed to the method
     - correlation : object - the value optionally returned from OnExecute
     - exception : Exception - the exception that is bubbling up from the method
 
