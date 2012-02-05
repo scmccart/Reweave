@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Reweave
+namespace Reweave.Core
 {
     static class LinqExtensions
     {

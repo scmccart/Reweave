@@ -5,9 +5,9 @@ using System.Text;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
-namespace Reweave
+namespace Reweave.Core
 {
-    class AspectWeaver
+    public class AspectWeaver
     {
         TypeDefinition _type;
         MethodDefinition _onExecute;
@@ -252,11 +252,11 @@ namespace Reweave
                 yield return ilp.Create(OpCodes.Ldloc, aspectInstance);
             }
 
-            var dynamicArgs = new Dictionary<string, IEnumerable<Instruction>>();
+            var dynamicArgs = new Dictionary<string, Tuple<Type, IEnumerable<Instruction>>>();
 
             if (_requiresCorrelationVariable)
             {
-                dynamicArgs.Add("correlation", ilp.Create(OpCodes.Ldloc, correlation).AsEnumerable());
+                dynamicArgs.Add("correlation", Tuple.Create(typeof(object), ilp.Create(OpCodes.Ldloc, correlation).AsEnumerable()));
             }
 
             var args = ProcessArgs(ilp, _onComplete, targetMethod, dynamicArgs).ToArray();
@@ -281,14 +281,14 @@ namespace Reweave
                 yield return ilp.Create(OpCodes.Ldloc, aspectInstance);
             }
 
-            var dynamicArgs = new Dictionary<string, IEnumerable<Instruction>>()
+            var dynamicArgs = new Dictionary<string, Tuple<Type, IEnumerable<Instruction>>>()
             {
-                {"exception", ilp.Create(OpCodes.Ldloc, excVariable).AsEnumerable()}
+                {"exception", Tuple.Create(typeof(Exception), ilp.Create(OpCodes.Ldloc, excVariable).AsEnumerable())}
             };
 
             if (_requiresCorrelationVariable)
             {
-                dynamicArgs.Add("correlation", ilp.Create(OpCodes.Ldloc, correlation).AsEnumerable());
+                dynamicArgs.Add("correlation", Tuple.Create(typeof(object), ilp.Create(OpCodes.Ldloc, correlation).AsEnumerable()));
             }
 
             var args = ProcessArgs(ilp, _onException, targetMethod, dynamicArgs).ToArray();
@@ -303,32 +303,49 @@ namespace Reweave
             yield return ilp.Create(OpCodes.Rethrow);
         }
 
-        private IEnumerable<Instruction> ProcessArgs(ILProcessor ilp, MethodDefinition aspectMethod, MethodDefinition targetMethod, IDictionary<string, IEnumerable<Instruction>> dynamicArgs = null)
+        private IEnumerable<Instruction> ProcessArgs(
+            ILProcessor ilp, 
+            MethodDefinition aspectMethod, 
+            MethodDefinition targetMethod, 
+            IDictionary<string, Tuple<Type, IEnumerable<Instruction>>> dynamicArgs = null)
         {
-            //TODO: Split this matching out to parts.
             foreach (var param in aspectMethod.Parameters)
             {
                 if (param.Name.Equals("methodName", StringComparison.OrdinalIgnoreCase))
                 {
+                    ValidateParamType(aspectMethod, param, typeof(string));
+
                     yield return ilp.Create(OpCodes.Ldstr, targetMethod.Name);
                 }
                 else if (param.Name.Equals("className", StringComparison.OrdinalIgnoreCase))
                 {
+                    ValidateParamType(aspectMethod, param, typeof(string));
+
                     yield return ilp.Create(OpCodes.Ldstr, targetMethod.DeclaringType.Name);
                 }
                 else if (dynamicArgs != null && dynamicArgs.ContainsKey(param.Name.ToLower()))
                 {
-                    var instrs = dynamicArgs[param.Name.ToLower()];
+                    var typeAndInstrs = dynamicArgs[param.Name.ToLower()];
 
-                    foreach (var instr in instrs)
+                    ValidateParamType(aspectMethod, param, typeAndInstrs.Item1);
+
+                    foreach (var instr in typeAndInstrs.Item2)
                     {
                         yield return instr;
                     }
                 }
                 else
                 {
-                    throw new Exception("IDK what to do with " + param.Name);
+                    throw new Exceptions.ArgumentNotRecognizedException(_type, aspectMethod, param);
                 }
+            }
+        }
+
+        private void ValidateParamType(MethodReference aspectMethod, ParameterReference parameter, Type expectedType)
+        {
+            if (!parameter.ParameterType.TypeMatches(expectedType))
+            {
+                throw new Exceptions.ArgumentTypeMismatchException(_type, aspectMethod, parameter, expectedType);
             }
         }
     }

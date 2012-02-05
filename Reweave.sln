@@ -8,6 +8,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reweave", "Reweave\Reweave.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestTargetApp", "TestTargetApp\TestTargetApp.csproj", "{9B93A1EC-7555-4299-AA15-B073F8197290}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reweave.Core", "Reweave.Core\Reweave.Core.csproj", "{BD425914-AE08-4EF8-A2BF-6CF33E1B19F3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{639767BA-EDC1-4E1B-A5C9-0A5E563E1E2D}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +46,16 @@ Global
 		{9B93A1EC-7555-4299-AA15-B073F8197290}.Release|Mixed Platforms.Build.0 = Release|x86
 		{9B93A1EC-7555-4299-AA15-B073F8197290}.Release|x86.ActiveCfg = Release|x86
 		{9B93A1EC-7555-4299-AA15-B073F8197290}.Release|x86.Build.0 = Release|x86
+		{BD425914-AE08-4EF8-A2BF-6CF33E1B19F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD425914-AE08-4EF8-A2BF-6CF33E1B19F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD425914-AE08-4EF8-A2BF-6CF33E1B19F3}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{BD425914-AE08-4EF8-A2BF-6CF33E1B19F3}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{BD425914-AE08-4EF8-A2BF-6CF33E1B19F3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BD425914-AE08-4EF8-A2BF-6CF33E1B19F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD425914-AE08-4EF8-A2BF-6CF33E1B19F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD425914-AE08-4EF8-A2BF-6CF33E1B19F3}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{BD425914-AE08-4EF8-A2BF-6CF33E1B19F3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{BD425914-AE08-4EF8-A2BF-6CF33E1B19F3}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

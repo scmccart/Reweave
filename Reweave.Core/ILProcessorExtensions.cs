@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Mono.Cecil.Cil;
 
-namespace Reweave
+namespace Reweave.Core
 {
     static class ILProcessorExtensions
     {
