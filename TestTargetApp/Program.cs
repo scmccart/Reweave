@@ -97,14 +97,13 @@ namespace TestTargetApp
             catch (Exception exc)
             {
                 HandleIt(exc);
-
                 throw;
             }
         }
 
-        static void HandleIt(Exception foo)
+        static bool HandleIt(Exception foo)
         {
-
+            return true;
         }
 
         class TinyHandler

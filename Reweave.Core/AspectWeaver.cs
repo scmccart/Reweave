@@ -125,10 +125,6 @@ namespace Reweave.Core
 
                 if (last.OpCode == OpCodes.Ret)
                 {
-                    var onCompleteInstructions = GetOnCompleteInstructions(targetMethod, ilp, aspectInstance, correlation).ToArray();
-
-                    //Place this code before the last nop or br_s so that the onException can place itself correctly.
-
                     var insertBefore = last.Previous;
 
                     while (insertBefore.OpCode != OpCodes.Nop && insertBefore.OpCode != OpCodes.Br_S)
@@ -136,6 +132,18 @@ namespace Reweave.Core
                         insertBefore = insertBefore.Previous;
                     }
 
+                    Instruction loadReturn = null;
+        
+                    //if it's a br_s then we are returning a value.
+                    if (insertBefore.OpCode == OpCodes.Br_S)
+                    {
+                        loadReturn = ilp.Copy(insertBefore.Next);
+                    }
+
+                    var onCompleteInstructions = GetOnCompleteInstructions(targetMethod, ilp, aspectInstance, correlation, loadReturn).ToArray();
+
+                    //Place this code before the last nop or br_s so that the onException can place itself correctly.
+                                                         
                     ilp.InsertInstructionsBefore(insertBefore, onCompleteInstructions);
                 }
             }
@@ -246,14 +254,17 @@ namespace Reweave.Core
             }
         }
 
-        private IEnumerable<Instruction> GetOnCompleteInstructions(MethodDefinition targetMethod, ILProcessor ilp, VariableDefinition aspectInstance, VariableDefinition correlation)
+        private IEnumerable<Instruction> GetOnCompleteInstructions(MethodDefinition targetMethod, ILProcessor ilp, VariableDefinition aspectInstance, VariableDefinition correlation, Instruction loadReturn)
         {
             if (_requiresAspectInstance && !_onComplete.IsStatic)
             {
                 yield return ilp.Create(OpCodes.Ldloc, aspectInstance);
             }
 
-            var dynamicArgs = new Dictionary<string, Tuple<Type, IEnumerable<Instruction>>>();
+            var dynamicArgs = new Dictionary<string, Tuple<Type, IEnumerable<Instruction>>>()
+            {
+                {"returnvalue", Tuple.Create(typeof(object), (loadReturn ?? ilp.Create(OpCodes.Ldnull)).AsEnumerable())}
+            };
 
             if (_requiresCorrelationVariable)
             {

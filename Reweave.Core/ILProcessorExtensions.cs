@@ -46,5 +46,15 @@ namespace Reweave.Core
                 lastAdded = insr;
             }
         }
+
+        public static Instruction Copy(this ILProcessor processor, Instruction toCopy)
+        {
+            if (toCopy.OpCode.OperandType != OperandType.InlineNone)
+            {
+                throw new ArgumentException("Can't this instruction", "toCopy");
+            }
+
+            return processor.Create(toCopy.OpCode);
+        }
     }
 }
