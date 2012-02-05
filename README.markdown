@@ -1,5 +1,6 @@
-__Reweave__  
-A Mono.Cecil based assembly re-writer focused on enabling aspect oriented programming for .Net. This is an extremely early version - pre v0.1 to say the least.
+Reweave 
+=======
+A [Mono.Cecil](https://github.com/jbevain/cecil) based assembly re-writer focused on enabling aspect oriented programming for .Net. This is an extremely early version - pre v0.1 to say the least.
   
 With Reweave aspects are convention based, any Attribute with a name ending in "AspectAttribute" is considered an aspect - no run time library required. Likewise hooking into the method's execution is based on convention:
 
@@ -19,28 +20,6 @@ With Reweave aspects are convention based, any Attribute with a name ending in "
 
 In addition aspects can either be static or instance by nature - if any of the above methods are defined as instance methods a new instance of the aspect will be created each time a method marked with it is invoked. Otherwise, if they are all static no instance will be created.
 
-Here's the canonical logging example implemented for Reweave,
-```csharp
-[AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-class LoggingAspectAttribute : Attribute
-{
-    public void OnExecute(string methodName, string className)
-    {
-        Console.WriteLine("Executing {0}.{1}", className, methodName);
-    }
-
-    public void OnComplete(string methodName, string className)
-    {
-        Console.WriteLine("Completed {0}.{1}", className, methodName);
-    }
-
-    public void OnException(string methodName, string className, Exception exception)
-    {
-        Console.WriteLine("Exception {0}.{1}: {2}", className, methodName, exception.Message);
-    }
-}
-```
-
-Note that nothing other than the System namespace is required here.
+You can find the canonical logging example in [TestTargetApp\LoggingAspectAttribute.cs](https://github.com/scmccart/Reweave/blob/master/TestTargetApp/LoggingAspectAttribute.cs).
 
 So, if you are brave give it a go and let me know if it screws up on you.
