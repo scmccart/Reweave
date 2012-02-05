@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Mono.Cecil;
+using Mono.Cecil.Rocks;
 
 namespace Reweave.Core
 {
@@ -12,6 +13,11 @@ namespace Reweave.Core
         {
             return typeRef.Namespace == otherType.Namespace
                 && typeRef.Name == otherType.Name;
+        }
+
+        public static TypeReference ImportInto(this TypeReference typeRef, ModuleDefinition module)
+        {
+            return module.Import(typeRef);
         }
     }
 }

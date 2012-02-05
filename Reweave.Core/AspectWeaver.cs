@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Mono.Cecil.Rocks;
 
 namespace Reweave.Core
 {
@@ -48,7 +49,7 @@ namespace Reweave.Core
 
             _requiresCorrelationVariable = _onExecute != null
                 && _onExecute.IsStatic
-                && _onExecute.ReturnType.Name != null;
+                && !_onExecute.ReturnType.TypeMatches(typeof(void));
 
             if (_requiresCorrelationVariable)
             {
@@ -322,6 +323,52 @@ namespace Reweave.Core
                     ValidateParamType(aspectMethod, param, typeof(string));
 
                     yield return ilp.Create(OpCodes.Ldstr, targetMethod.DeclaringType.Name);
+                }
+                else if (param.Name.Equals("arguments", StringComparison.OrdinalIgnoreCase))
+                {
+                    ValidateParamType(aspectMethod, param, typeof(Dictionary<string, object>));
+
+                    var module = targetMethod.Module;
+
+                    var dict = module.Import(typeof(Dictionary<,>)).Resolve();
+                    var instDict = dict.MakeGenericInstanceType(module.TypeSystem.String, module.TypeSystem.Object)
+                        .ImportInto(module);
+
+                    var instDictResolved = instDict.Resolve();
+
+                    var ctor = instDictResolved
+                        .Methods
+                        .First(m => m.IsConstructor && !m.HasParameters)
+                        .Resolve()
+                        .MakeHostInstanceGeneric(module.TypeSystem.String, module.TypeSystem.Object)
+                        .ImportInto(module);
+
+                    var add = instDictResolved
+                        .Methods
+                        .First(m => m.Name == "Add")
+                        .Resolve()
+                        .MakeHostInstanceGeneric(module.TypeSystem.String, module.TypeSystem.Object)
+                        .ImportInto(module);
+                                        
+                    yield return ilp.Create(OpCodes.Newobj, ctor);
+
+                    if (targetMethod.Parameters.Count > 0)
+                    {
+                        var argsVar = new VariableDefinition(instDict);
+                        targetMethod.Body.Variables.Add(argsVar);
+                        
+                        yield return ilp.Create(OpCodes.Stloc, argsVar);
+
+                        foreach (var targetParam in targetMethod.Parameters)
+                        {
+                            yield return ilp.Create(OpCodes.Ldloc, argsVar);
+                            yield return ilp.Create(OpCodes.Ldstr, targetParam.Name);
+                            yield return ilp.Create(OpCodes.Ldarg, targetParam);
+                            yield return ilp.Create(OpCodes.Call, add);
+                        }
+
+                        yield return ilp.Create(OpCodes.Ldloc, argsVar);
+                    }
                 }
                 else if (dynamicArgs != null && dynamicArgs.ContainsKey(param.Name.ToLower()))
                 {

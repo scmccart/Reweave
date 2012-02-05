@@ -11,8 +11,13 @@ namespace TestTargetApp
         static void Main(string[] args)
         {
             TestPrint();
+            TestPrintStatic();
 
             TestPrint2();
+
+            TestPrintParam("boofar", "foobar");
+
+            TestDict();
 
             try
             {
@@ -26,6 +31,13 @@ namespace TestTargetApp
             }
         }
 
+        private static void TestDict()
+        {
+            IDictionary<string, object> dict = new Dictionary<string, object>();
+
+            dict.Add("foo", 4);
+        }
+
         [LoggingAspect]
         static string TestPrint()
         {
@@ -33,10 +45,23 @@ namespace TestTargetApp
             return "foo";
         }
 
+        [StaticLoggingAspect]
+        static string TestPrintStatic()
+        {
+            Console.WriteLine("foobar2");
+            return "foo2";
+        }
+
         [LoggingAspect]
         static void TestPrint2()
         {
             Console.WriteLine("foobar");
+        }
+
+        [LoggingAspect]
+        static void TestPrintParam(string param, string param2)
+        {
+            Console.WriteLine(param, param2);
         }
 
         [LoggingAspect]
