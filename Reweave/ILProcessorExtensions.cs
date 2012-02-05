@@ -1,0 +1,50 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Mono.Cecil.Cil;
+
+namespace Reweave
+{
+    static class ILProcessorExtensions
+    {
+        public static void PrependInstructions(this ILProcessor processor, IEnumerable<Instruction> instructions)
+        {
+            var first = instructions.FirstOrDefault();
+
+            if (first != null)
+            {
+                processor.InsertBefore(processor.Body.Instructions[0], first);
+            }
+
+            var lastAdded = first;
+            foreach (var insr in instructions.Skip(1))
+            {
+                processor.InsertAfter(lastAdded, insr);
+                lastAdded = insr;
+            }
+        }
+
+        public static void InsertInstructionsBefore(this ILProcessor processor, Instruction before, IEnumerable<Instruction> instructions)
+        {
+            var lastAdded = before;
+
+            foreach (var insr in instructions.Reverse())
+            {
+                processor.InsertBefore(lastAdded, insr);
+                lastAdded = insr;
+            }
+        }
+
+        public static void InsertInstructionsAfter(this ILProcessor processor, Instruction after, IEnumerable<Instruction> instructions)
+        {
+            var lastAdded = after;
+
+            foreach (var insr in instructions)
+            {
+                processor.InsertAfter(lastAdded, insr);
+                lastAdded = insr;
+            }
+        }
+    }
+}

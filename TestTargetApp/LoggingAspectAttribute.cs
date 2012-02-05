@@ -12,5 +12,15 @@ namespace TestTargetApp
         {
             Console.WriteLine("Executing {0}.{1}", className, methodName);
         }
+
+        public void OnComplete(string methodName, string className)
+        {
+            Console.WriteLine("Completed {0}.{1}", className, methodName);
+        }
+
+        public void OnException(string methodName, string className, Exception exception)
+        {
+            Console.WriteLine("Exception {0}.{1}: {2}", className, methodName, exception.Message);
+        }
     }
 }
